@@ -1,0 +1,96 @@
+
+---
+title: "Methods and Data Analysis 3"
+author: "Chayut Wongkamthong"
+date: "09/23/2019"
+header-includes:
+  \usepackage{float}
+output:
+  pdf_document: 
+    fig_caption: yes
+  html_document:
+    highlight: pygments
+    theme: spacelab
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.pos = 'h', fig.align = 'center')
+knitr::opts_chunk$set(fig.cap = "",  fig.path = "Plot")
+library(knitr)
+library(dplyr)
+library(ggplot2)
+library(arm)
+library(pROC)
+library(tidyverse)
+library(MASS)
+library(tigerstats)
+library(leaps)
+library(car)
+library(rms)
+require(caret)
+require(e1071)
+library(broom)
+```
+
+* * *
+
+# MATERNAL SMOKING AND PRE-TERM BIRTH
+
+## Executive Summary
+
+
+## Introduction 
+
+
+## Data and Exploratory Data Analysis
+
+```{r, echo = FALSE, include=FALSE}
+df <- read_csv("ADNIMERGE.csv") 
+df_dx <- na.omit(df[df$VISCODE == 'bl', c('DX', 'AGE',  'PTGENDER', 'PTEDUCAT'
+, 'PTMARRY', 'RAVLT_perc_forgetting_bl', 'DIGITSCOR_bl', 'FAQ_bl')])
+
+df_dx_noDigit<- na.omit(df[df$VISCODE == 'bl', c('DX', 'AGE',  'PTGENDER', 'PTEDUCAT'
+, 'PTMARRY', 'RAVLT_perc_forgetting_bl', 'FAQ_bl')])
+
+df_biom <- na.omit(df[df$VISCODE == 'bl', c('DX', 'AGE',  'PTGENDER', 'PTEDUCAT'
+, 'PTMARRY', 'RAVLT_perc_forgetting_bl', 'FAQ_bl', 'PTAU_bl', 'ABETA_bl', 'Hippocampus_bl')])
+
+df$DX_bl <- factor(df$DX_bl, levels = c('CN','LMCI', 'AD'), ordered = T)
+df$PTGENDER <- factor(df$PTGENDER)
+df$PTMARRY <- factor(df$PTMARRY)
+df$MALE <- factor(df$PTGENDER == 'Male')
+df$Partner <- factor(df$PTMARRY == 'Married')
+df <- df[, c('DX_bl', 'AGE',  'MALE', 'PTEDUCAT'
+, 'Partner', 'RAVLT_perc_forgetting_bl', 'DIGITSCOR_bl', 'FAQ_bl')]
+df <- data.frame(df)
+```
+
+  
+  
+## Model
+```{r}
+df$AGE <- df$AGE - mean(df$AGE)
+df$PTEDUCAT <- df$PTEDUCAT - mean(df$PTEDUCAT)
+df$RAVLT_perc_forgetting_bl <- df$RAVLT_perc_forgetting_bl - mean(df$RAVLT_perc_forgetting_bl)
+df$DIGITSCOR_bl <- df$DIGITSCOR_bl - mean(df$DIGITSCOR_bl)
+df$FAQ_bl <- df$FAQ_bl - mean(df$FAQ_bl)
+
+Model1_pom <- polr(DX_bl ~., data=df, Hess = TRUE)
+summary(Model1_pom)
+
+```
+
+
+
+## Results
+
+```{r}
+multiclass.roc(df$DX_bl,fitted(Model1_pom),plot=T,print.thres="best",legacy.axes=T,
+    print.auc =T,col="red3")
+```
+
+
+## Conclusion and Remarks
+
+
+* * *
