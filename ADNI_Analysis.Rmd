@@ -30,11 +30,18 @@ library(rms)
 require(caret)
 require(e1071)
 library(broom)
+library(arm)
+library(pROC)
+library(e1071)
+library(caret)
+library(nnet)
+library(knitr)
+library(MASS)
 ```
 
 * * *
 
-# MATERNAL SMOKING AND PRE-TERM BIRTH
+# Alzheimer's Disease phase prediction and bio-markers approximation
 
 ## Executive Summary
 
@@ -45,39 +52,102 @@ library(broom)
 ## Data and Exploratory Data Analysis
 
 ```{r, echo = FALSE, include=FALSE}
-df <- read_csv("ADNIMERGE.csv") 
-df_dx <- na.omit(df[df$VISCODE == 'bl', c('DX', 'AGE',  'PTGENDER', 'PTEDUCAT'
-, 'PTMARRY', 'RAVLT_perc_forgetting_bl', 'DIGITSCOR_bl', 'FAQ_bl')])
+df <- read_csv("Data\\ADNIMERGE.csv") 
+#subset variables of interest
+df <- df[df$VISCODE == 'bl', c('COLPROT','DX', 'PTAU', 'Hippocampus', 'ABETA', 'AGE', 'PTGENDER', 'PTEDUCAT', 'PTMARRY', 'CDRSB', 'ADAS13', 'MMSE', 'RAVLT_perc_forgetting_bl', 'FAQ', 'MOCA', 'DIGITSCOR', 'VSWEIGHT', 'VSHEIGHT' )]
 
-df_dx_noDigit<- na.omit(df[df$VISCODE == 'bl', c('DX', 'AGE',  'PTGENDER', 'PTEDUCAT'
-, 'PTMARRY', 'RAVLT_perc_forgetting_bl', 'FAQ_bl')])
 
-df_biom <- na.omit(df[df$VISCODE == 'bl', c('DX', 'AGE',  'PTGENDER', 'PTEDUCAT'
-, 'PTMARRY', 'RAVLT_perc_forgetting_bl', 'FAQ_bl', 'PTAU_bl', 'ABETA_bl', 'Hippocampus_bl')])
-
-df$DX_bl <- factor(df$DX_bl, levels = c('CN','LMCI', 'AD'), ordered = T)
-df$PTGENDER <- factor(df$PTGENDER)
+df$DX <- factor(df$DX, levels = c('CN','MCI', 'Dementia'), ordered = T)
+df$PTGENDER <- factor(df$PTGENDER, levels = c('Female', 'Male'))
 df$PTMARRY <- factor(df$PTMARRY)
-df$MALE <- factor(df$PTGENDER == 'Male')
 df$Partner <- factor(df$PTMARRY == 'Married')
-df <- df[, c('DX_bl', 'AGE',  'MALE', 'PTEDUCAT'
-, 'Partner', 'RAVLT_perc_forgetting_bl', 'DIGITSCOR_bl', 'FAQ_bl')]
+
 df <- data.frame(df)
+
+df_subset <- na.omit(df[, c('DX','Hippocampus', 'AGE', 'PTGENDER','VSWEIGHT', 'VSHEIGHT', 'PTEDUCAT', 'Partner', 'CDRSB', 'ADAS13', 'MMSE', 'RAVLT_perc_forgetting_bl', 'FAQ', 'DIGITSCOR')])
+df_subset <- df_subset[df_subset$RAVLT_perc_forgetting_bl >=0,]
+#mean center data
+df_subset$FAQ <- log(df_subset$FAQ + 0.001)
+df_subset$AGE <- df_subset$AGE - mean(df_subset$AGE)
+df_subset$VSWEIGHT <- df_subset$VSWEIGHT - mean(df_subset$VSWEIGHT)
+df_subset$VSHEIGHT <- df_subset$VSHEIGHT - mean(df_subset$VSHEIGHT)
+df_subset$PTEDUCAT <- df_subset$PTEDUCAT - mean(df_subset$PTEDUCAT)
+df_subset$CDRSB <- df_subset$CDRSB - mean(df_subset$CDRSB)
+df_subset$ADAS13 <- df_subset$ADAS13 - mean(df_subset$ADAS13)
+df_subset$MMSE <- df_subset$MMSE - mean(df_subset$MMSE)
+df_subset$RAVLT_perc_forgetting_bl <- df_subset$RAVLT_perc_forgetting_bl - mean(df_subset$RAVLT_perc_forgetting_bl)
+df_subset$FAQ <- df_subset$FAQ - mean(df_subset$FAQ)
+df_subset$DIGITSCOR <- df_subset$DIGITSCOR - mean(df_subset$DIGITSCOR)
 ```
 
-  
-  
-## Model
 ```{r}
-df$AGE <- df$AGE - mean(df$AGE)
-df$PTEDUCAT <- df$PTEDUCAT - mean(df$PTEDUCAT)
-df$RAVLT_perc_forgetting_bl <- df$RAVLT_perc_forgetting_bl - mean(df$RAVLT_perc_forgetting_bl)
-df$DIGITSCOR_bl <- df$DIGITSCOR_bl - mean(df$DIGITSCOR_bl)
-df$FAQ_bl <- df$FAQ_bl - mean(df$FAQ_bl)
+#EDA
+ggplot(data = df_subset) + geom_boxplot(aes(y = FAQ, col = DX))
+#binned plot to evaluate the inverse logit
+binnedplot(y=df_subset$DX == 'Dementia',df_subset$AGE,xlab="AGE",ylim=c(0,1),col.pts="navy",
+           ylab ="CN",col.int="white")
+```
 
-Model1_pom <- polr(DX_bl ~., data=df, Hess = TRUE)
-summary(Model1_pom)
 
+
+## Model
+
+```{r}
+#Modelling process
+#DIGITSCOR + RAVLT_perc_forgetting_bl +FAQ
+#Ordered logistic regression
+Model1 <- polr(DX ~ DIGITSCOR + RAVLT_perc_forgetting_bl +FAQ + AGE + PTGENDER + PTEDUCAT, data=df_subset)
+
+summary(Model1)
+vif(Model1)
+
+#multiclass ROC
+multiclass.roc(df_subset$DX,fitted(Model1),print.thres="best",legacy.axes=T,
+    print.auc =T ,col="red3", plot = T, percent = T)
+
+#solo roc
+par(mfcol = c(3,1))
+roc((df_subset$DX == 'CN'),fitted(Model1)[,1],plot=T,print.thres="best",legacy.axes=T,print.auc =T, col="red3",percent=T,main="Group 1")
+roc((df_subset$DX == 'MCI'),fitted(Model1)[,2],plot=T,print.thres="best",legacy.axes=T,print.auc =T,col="gray3",percent=T,main="Group 2")
+roc((df_subset$DX == 'Dementia'),fitted(Model1)[,3],plot=T,print.thres="best",legacy.axes=T,print.auc =T,col="green3",percent=T,main="Group 3")
+
+
+#predict biomarkers: logPTAU
+Model2 <- lm(log(PTAU) ~. - ABETA - Hippocampus - DX, data=df_subset)
+summary(Model2)
+
+#predict biomarkers: ABETA
+Model3 <- lm(log(ABETA) ~. - PTAU - Hippocampus - DX, data=df_subset)
+summary(Model3)
+
+#predict biomarkers: Hippocampus
+#Height data is not consistent
+Model4 <- lm(Hippocampus ~DIGITSCOR + FAQ +RAVLT_perc_forgetting_bl + VSWEIGHT +AGE + PTGENDER , data=df_subset)
+summary(Model4)
+```
+```{r}
+#Other possible models
+
+```
+
+
+```{r}
+#residual plots
+
+##Calculate residual
+rawresid1 <- (df_subset$DX== 'CN') -  fitted(Model1)[,1]
+rawresid2 <- (df_subset$DX!= 'Dementia') -  rowSums(fitted(Model1)[,1:2])
+
+##binned plots for continuous variables
+binnedplot(fitted(Model1)[,1], rawresid1, xlab = "DIGITSCOR", ylab = "Raw residuals", main = "Binned plot: CN")
+binnedplot(rowSums(fitted(Model1)[,1:2]), rawresid2, xlab = "DIGITSCOR", ylab = "Raw residuals", main = "Binned plot: CN + MCI")
+
+
+
+#for categorical variables, report error table
+tapply(rawresid1, df_subset$PTGENDER, mean)
+tapply(rawresid2, df_subset$PTGENDER, mean)
+tapply(rawresid3, df_subset$PTGENDER, mean)
 ```
 
 
