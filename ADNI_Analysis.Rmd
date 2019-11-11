@@ -64,10 +64,10 @@ df$Partner <- factor(df$PTMARRY == 'Married')
 
 df <- data.frame(df)
 
-df_subset <- na.omit(df[, c('DX','Hippocampus', 'AGE', 'PTGENDER','VSWEIGHT', 'VSHEIGHT', 'PTEDUCAT', 'Partner', 'CDRSB', 'ADAS13', 'MMSE', 'RAVLT_perc_forgetting_bl', 'FAQ', 'DIGITSCOR')])
+df_subset <- na.omit(df[, c('DX', 'AGE', 'PTGENDER','VSWEIGHT', 'VSHEIGHT', 'PTEDUCAT', 'Partner','CDRSB', 'ADAS13', 'MMSE', 'RAVLT_perc_forgetting_bl', 'FAQ', 'DIGITSCOR')])
 df_subset <- df_subset[df_subset$RAVLT_perc_forgetting_bl >=0,]
 #mean center data
-df_subset$FAQ <- log(df_subset$FAQ + 0.001)
+df_subset$FAQ <- df_subset$FAQ^0.5
 df_subset$AGE <- df_subset$AGE - mean(df_subset$AGE)
 df_subset$VSWEIGHT <- df_subset$VSWEIGHT - mean(df_subset$VSWEIGHT)
 df_subset$VSHEIGHT <- df_subset$VSHEIGHT - mean(df_subset$VSHEIGHT)
@@ -84,7 +84,13 @@ df_subset$DIGITSCOR <- df_subset$DIGITSCOR - mean(df_subset$DIGITSCOR)
 #EDA
 ggplot(data = df_subset) + geom_boxplot(aes(y = FAQ, col = DX))
 #binned plot to evaluate the inverse logit
-binnedplot(y=df_subset$DX == 'Dementia',df_subset$AGE,xlab="AGE",ylim=c(0,1),col.pts="navy",
+binnedplot(y=df_subset$DX == 'CN',df_subset$FAQ,xlab="AGE",ylim=c(0,1),col.pts="navy",
+           ylab ="CN",col.int="white")
+binnedplot(y=df_subset$DX != 'Dementia',df_subset$FAQ,xlab="AGE",ylim=c(0,1),col.pts="navy",
+           ylab ="CN",col.int="white")
+
+
+binnedplot(y=df_subset$DX == 'MCI',df_subset$FAQ,xlab="AGE",ylim=c(0,1),col.pts="navy",
            ylab ="CN",col.int="white")
 ```
 
@@ -122,7 +128,7 @@ summary(Model3)
 
 #predict biomarkers: Hippocampus
 #Height data is not consistent
-Model4 <- lm(Hippocampus ~DIGITSCOR + FAQ +RAVLT_perc_forgetting_bl + VSWEIGHT +AGE + PTGENDER , data=df_subset)
+Model4 <- lm(Hippocampus ~DIGITSCOR + FAQ +RAVLT_perc_forgetting_bl + VSWEIGHT +AGE + PTGENDER + PTEDUCAT, data=df_subset)
 summary(Model4)
 ```
 ```{r}
