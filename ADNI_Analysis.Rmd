@@ -30,13 +30,6 @@ library(rms)
 require(caret)
 require(e1071)
 library(broom)
-library(arm)
-library(pROC)
-library(e1071)
-library(caret)
-library(nnet)
-library(knitr)
-library(MASS)
 ```
 
 * * *
@@ -47,126 +40,413 @@ library(MASS)
 
 
 ## Introduction 
+Formally introduced in 1910, Alzheimer’s disease is a fatal disease that develops through an irreversible process spanning across several years. Patients typically experience memory loss, impaired cognitive ability, language problems, and stress[1]. Even though over 5.8 million Americans are suffering from it[2], our capability in accurately screening is still limited especially for Mild Cognitive Impairment (MCI), the early stage of the disease, resulting in late treatment.
 
+Moreover, the demantia diagnostic process in use also involves several rule-based metrics and subjective components including standardized test (Mini-Mental State Exam MMSE) which is not sensitive for MCI [3,4], interviews by clinicians, and sometimes CT, MRI or PET scan to collect biomarkers to determine the progress of the disease [5]. There are three main objectives to be addressed in this project.
+
+1. To build statistical models based on simple neuropsychological tests that could possibly be administered online, and compare their predictive capability with other diagnostic techniques proposed within research community.  
+
+2. To investigate the potential of the metrics as a risk factor to indicate potential conversion to other degrees of Alzheimer’s in the future.
+
+3. To explore the capability of these basic tests in estimating some of the biomarkers that have been believed to play major roles in the development mechanism of Alzheimer's disease [6].
 
 ## Data and Exploratory Data Analysis
 
+The permission to access the data used in this project was approved by The Alzheimer’s Disease Neuroimaging Initiative (ADNI). Specifically, the analyzed data set corresponds to ADNI1 cohort (797 participants). It includes basic demographic information of participants, longitudinal diagnostic results, vital signs, biomarkers, and Neuropsychological test results [7]. The full data dictionary was provided in the appendix section.
+
+The neuropsychological tests explored in this project included:
+1. Rey Auditory Verbal Learning Test (RAVLT): a short-term auditory-verbal memory test [8]
+2. Digit Symbol Substitution Test (DSST): a symbol matching test [9]
+3. Functional Activities Questionnaire (FAQ): a questionnaire for an informant about patient's ability to do daily tasks alone [10]
+
+In the data cleaning process, one negative value of RAVLT score was found and the record was removed. Moreover, the unit of height measurement was not consistent across the population noted from clear bimodal distribution. Therefore, we avoided using such variables. We also found that not all paticipants had all information recorded at the screening process of the program; consequently, the data measured at baseline once accepted into the ADNI program will be used.
+
+For exploratory data analysis, ...
+
 ```{r, echo = FALSE, include=FALSE}
-df <- read_csv("Data\\ADNIMERGE.csv") 
+df <- read_csv("Data/ADNIMERGE.csv") 
+FAQ_breakdown <- read_csv("Data/FAQ_breakdown.csv")
+
 #subset variables of interest
-df <- df[df$VISCODE == 'bl', c('COLPROT','DX', 'PTAU', 'Hippocampus', 'ABETA', 'AGE', 'PTGENDER', 'PTEDUCAT', 'PTMARRY', 'CDRSB', 'ADAS13', 'MMSE', 'RAVLT_perc_forgetting_bl', 'FAQ', 'MOCA', 'DIGITSCOR', 'VSWEIGHT', 'VSHEIGHT' )]
+df <- df[df$VISCODE == 'bl', c('RID','COLPROT','DX', 'PTAU', 'Hippocampus', 'ABETA', 
+                               'AGE', 'PTGENDER', 'PTEDUCAT', 'PTMARRY', 'CDRSB', 
+                               'ADAS13', 'MMSE', 'RAVLT_perc_forgetting_bl', 'FAQ', 
+                               'MOCA', 'DIGITSCOR', 'VSWEIGHT','VSHEIGHT' )]
 
-
-df$DX <- factor(df$DX, levels = c('CN','MCI', 'Dementia'), ordered = T)
+#Convert variables into factors
+df$DX <- ordered(df$DX, levels = c('CN','MCI', 'Dementia'))
 df$PTGENDER <- factor(df$PTGENDER, levels = c('Female', 'Male'))
 df$PTMARRY <- factor(df$PTMARRY)
 df$Partner <- factor(df$PTMARRY == 'Married')
 
-df <- data.frame(df)
+```
 
-df_subset <- na.omit(df[, c('DX', 'AGE', 'PTGENDER','VSWEIGHT', 'VSHEIGHT', 'PTEDUCAT', 'Partner','CDRSB', 'ADAS13', 'MMSE', 'RAVLT_perc_forgetting_bl', 'FAQ', 'DIGITSCOR')])
-df_subset <- df_subset[df_subset$RAVLT_perc_forgetting_bl >=0,]
-#mean center data
-df_subset$FAQ <- df_subset$FAQ^0.5
-df_subset$AGE <- df_subset$AGE - mean(df_subset$AGE)
-df_subset$VSWEIGHT <- df_subset$VSWEIGHT - mean(df_subset$VSWEIGHT)
-df_subset$VSHEIGHT <- df_subset$VSHEIGHT - mean(df_subset$VSHEIGHT)
-df_subset$PTEDUCAT <- df_subset$PTEDUCAT - mean(df_subset$PTEDUCAT)
-df_subset$CDRSB <- df_subset$CDRSB - mean(df_subset$CDRSB)
-df_subset$ADAS13 <- df_subset$ADAS13 - mean(df_subset$ADAS13)
-df_subset$MMSE <- df_subset$MMSE - mean(df_subset$MMSE)
-df_subset$RAVLT_perc_forgetting_bl <- df_subset$RAVLT_perc_forgetting_bl - mean(df_subset$RAVLT_perc_forgetting_bl)
-df_subset$FAQ <- df_subset$FAQ - mean(df_subset$FAQ)
-df_subset$DIGITSCOR <- df_subset$DIGITSCOR - mean(df_subset$DIGITSCOR)
+```{r}
+#Phase 1: Prediction Alzheimer's Phase 
+
+#Subset ADNI1 data
+df_subset <- na.omit(df[, c('RID', 'COLPROT', 'DX', 'AGE', 'PTGENDER','VSWEIGHT', 
+                                  'VSHEIGHT', 'PTEDUCAT', 'Partner','CDRSB', 'ADAS13', 
+                                  'MMSE', 'RAVLT_perc_forgetting_bl',
+                                  'FAQ', 'DIGITSCOR')])
+phase1 <- merge(df_subset, FAQ_breakdown, by = 'RID')
+
+#Some rows have negative RAVLT score and FAQ score
+phase1 <- phase1[phase1$RAVLT_perc_forgetting_bl >=0,]
+phase1 <- phase1[phase1$FAQBEVG>=0,]
+
+#Take sqrt of FAQ to fix for large value causing predicting prob of 1
+phase1$FAQ <- phase1$FAQ^0.5
 ```
 
 ```{r}
 #EDA
-ggplot(data = df_subset) + geom_boxplot(aes(y = FAQ, col = DX))
-#binned plot to evaluate the inverse logit
-binnedplot(y=df_subset$DX == 'CN',df_subset$FAQ,xlab="AGE",ylim=c(0,1),col.pts="navy",
-           ylab ="CN",col.int="white")
-binnedplot(y=df_subset$DX != 'Dementia',df_subset$FAQ,xlab="AGE",ylim=c(0,1),col.pts="navy",
-           ylab ="CN",col.int="white")
+ggplot(data = phase1) + geom_boxplot(aes(y = FAQ, col = DX))
+ggplot(data = phase1) + geom_boxplot(aes(y = DIGITSCOR, col = DX))
+ggplot(data = phase1) + geom_boxplot(aes(y = RAVLT_perc_forgetting_bl, col = DX))
 
+#binned plot to evaluate the inverse logit: FAQ
+binnedplot(y=phase1$DX == 'CN',phase1$FAQ,xlab="sqrt.FAQ",
+           ylim=c(0,1),col.pts="navy", ylab ="Prob(<=CN)",col.int="white")
+binnedplot(y=phase1$DX != 'Dementia',phase1$FAQ,xlab="sqrt.FAQ",
+           ylim=c(0,1),col.pts="navy", ylab ="Prob(<=MCI)",col.int="white")
 
-binnedplot(y=df_subset$DX == 'MCI',df_subset$FAQ,xlab="AGE",ylim=c(0,1),col.pts="navy",
-           ylab ="CN",col.int="white")
+#binned plot to evaluate the inverse logit: DIGITSCOR
+binnedplot(y=phase1$DX == 'CN',phase1$DIGITSCOR,xlab="Digit Substitution Score",
+           ylim=c(0,1),col.pts="navy", ylab ="Prob(<=CN)",col.int="white")
+binnedplot(y=phase1$DX != 'Dementia',phase1$DIGITSCOR,xlab="Digit Substitution Score",
+           ylim=c(0,1),col.pts="navy", ylab ="Prob(<=MCI)",col.int="white")
+
+#binned plot to evaluate the inverse logit: RAVLT_perc_forgetting_bl
+binnedplot(y=phase1$DX == 'CN',phase1$RAVLT_perc_forgetting_bl,
+           xlab="RAVLT Percent Forgetting", ylim=c(0,1),col.pts="navy", 
+           ylab ="Prob(<=CN)",col.int="white")
+binnedplot(y=phase1$DX != 'Dementia',phase1$RAVLT_perc_forgetting_bl,
+           xlab="RAVLT Percent Forgetting", ylim=c(0,1),col.pts="navy", 
+           ylab ="Prob(<=MCI)",col.int="white")
+
+#binned plot to evaluate the inverse logit: ADAS13
+binnedplot(y=phase1$DX == 'CN',phase1$ADAS13,
+           xlab="ADAS-13", ylim=c(0,1),col.pts="navy", 
+           ylab ="Prob(<=CN)",col.int="white")
+binnedplot(y=phase1$DX != 'Dementia',phase1$ADAS13,
+           xlab="ADAS-13", ylim=c(0,1),col.pts="navy", 
+           ylab ="Prob(<=MCI)",col.int="white")
+
+#binned plot to evaluate the inverse logit: FAQSHOP
+binnedplot(y=phase1$DX == 'CN',phase1$FAQSHOP,
+           xlab="ADAS-13", ylim=c(0,1),col.pts="navy", 
+           ylab ="Prob(<=CN)",col.int="white")
+binnedplot(y=phase1$DX != 'Dementia',phase1$FAQSHOP,
+           xlab="ADAS-13", ylim=c(0,1),col.pts="navy", 
+           ylab ="Prob(<=MCI)",col.int="white")
+
+#binned plot to evaluate the inverse logit: FAQGAME
+binnedplot(y=phase1$DX == 'CN',phase1$FAQGAME,
+           xlab="ADAS-13", ylim=c(0,1),col.pts="navy", 
+           ylab ="Prob(<=CN)",col.int="white")
+binnedplot(y=phase1$DX != 'Dementia',phase1$FAQGAME,
+           xlab="ADAS-13", ylim=c(0,1),col.pts="navy", 
+           ylab ="Prob(<=MCI)",col.int="white")
+
+#binned plot to evaluate the inverse logit: FAQEVENT
+binnedplot(y=phase1$DX == 'CN',phase1$FAQEVENT,
+           xlab="ADAS-13", ylim=c(0,1),col.pts="navy", 
+           ylab ="Prob(<=CN)",col.int="white")
+binnedplot(y=phase1$DX != 'Dementia',phase1$FAQEVENT,
+           xlab="ADAS-13", ylim=c(0,1),col.pts="navy", 
+           ylab ="Prob(<=MCI)",col.int="white")
 ```
-
-
 
 ## Model
 
 ```{r}
-#Modelling process
-#DIGITSCOR + RAVLT_perc_forgetting_bl +FAQ
+#Part 1.1: Using FAQ, DIGITSCOR, and RAVLT to predict Alzheimer's Phase
+#1. Train-Test-Split 75%:25%
+set.seed(5)
+ind <- sample(c(TRUE, FALSE), dim(phase1)[1], replace=TRUE, prob=c(0.75, 0.25))
+phase1_training <- phase1[ind,]
+phase1_testing <- phase1[!ind,]
+
 #Ordered logistic regression
-Model1 <- polr(DX ~ DIGITSCOR + RAVLT_perc_forgetting_bl +FAQ + AGE + PTGENDER + PTEDUCAT, data=df_subset)
+phase1_fullmodel <- polr(DX ~ (DIGITSCOR + RAVLT_perc_forgetting_bl +FAQ)^2 + 
+                           AGE+ PTGENDER + PTEDUCAT, data=phase1_training)
 
-summary(Model1)
-vif(Model1)
+phase1_basemodel <- polr(DX ~ DIGITSCOR + RAVLT_perc_forgetting_bl +FAQ + 
+                           AGE+ PTGENDER + PTEDUCAT, data=phase1_training)
 
-#multiclass ROC
-multiclass.roc(df_subset$DX,fitted(Model1),print.thres="best",legacy.axes=T,
-    print.auc =T ,col="red3", plot = T, percent = T)
+#BIC stepwise selection
+phase1_step <- step(phase1_fullmodel ,direction="both",trace=0, 
+                    k = log(dim(phase1_training)[1]))
 
-#solo roc
-par(mfcol = c(3,1))
-roc((df_subset$DX == 'CN'),fitted(Model1)[,1],plot=T,print.thres="best",legacy.axes=T,print.auc =T, col="red3",percent=T,main="Group 1")
-roc((df_subset$DX == 'MCI'),fitted(Model1)[,2],plot=T,print.thres="best",legacy.axes=T,print.auc =T,col="gray3",percent=T,main="Group 2")
-roc((df_subset$DX == 'Dementia'),fitted(Model1)[,3],plot=T,print.thres="best",legacy.axes=T,print.auc =T,col="green3",percent=T,main="Group 3")
+#Summarize final model for this part
+summary(phase1_step)
+
+#Compare with the base model: not significant at 0.05 significance level
+anova(phase1_step, phase1_basemodel, test= "Chisq")
+```
+
+```{r}
+##Part 1.2: Model Assessment and Evaluation: residual plots
+
+##Calculate residual
+rawresid1 <- (phase1_training$DX== 'CN') -  fitted(phase1_step)[,1]
+rawresid2 <- (phase1_training$DX!= 'Dementia') -  rowSums(fitted(phase1_step)[,1:2])
+
+##binned plots for continuous variables
+binnedplot(fitted(phase1_step)[,1], rawresid1, xlab = "fitted value", ylab = "Raw residuals", main = "Binned plot: CN")
+binnedplot(rowSums(fitted(phase1_step)[,1:2]), rawresid2, xlab = "fitted value", ylab = "Raw residuals", main = "Binned plot: CN + MCI")
+```
+
+```{r}
+##Part 1.2: Model Assessment and Evaluation: test set performance
+
+#Prediction on test set
+predict_test <- predict(phase1_step, phase1_testing, type = 'probs')
+ind_notCN <- phase1_testing$DX!='CN'
+ind_notMCI <- phase1_testing$DX!='MCI'
+ind_notAD <- phase1_testing$DX!='Dementia'
+pred_CN <- predict_test[,1]
+pred_MCI <- predict_test[,2]
+pred_AD <- predict_test[,3]
+
+#Normal vs Dementia
+roc(phase1_testing$DX, pred_AD/(pred_AD+ pred_CN),
+    plot=T,print.thres="best",legacy.axes=T,print.auc =T,col="red3", levels = c('CN', 'Dementia'))
+
+#Normal vs MCI
+roc(phase1_testing$DX, pred_MCI/(pred_MCI+ pred_CN),
+    plot=T,print.thres="best",legacy.axes=T,print.auc =T,col="red3", levels = c('CN', 'MCI'))
+
+#MCI vs Dementia
+roc(phase1_testing$DX, pred_AD/(pred_AD+ pred_MCI),
+    plot=T,print.thres="best",legacy.axes=T,print.auc =T,col="red3", levels = c('MCI', 'Dementia'))
+```
 
 
-#predict biomarkers: logPTAU
-Model2 <- lm(log(PTAU) ~. - ABETA - Hippocampus - DX, data=df_subset)
-summary(Model2)
+```{r, warning = FALSE}
+#Part 1.3: Using breakdown score of FAQ to predict Alzheimer's Phase
+#Ordered logistic regression
+phase1_FAQbd <- polr(DX ~ (DIGITSCOR + RAVLT_perc_forgetting_bl + AGE + 
+                                 FAQFINAN + FAQFORM + FAQSHOP + FAQGAME +
+                                 FAQBEVG + FAQMEAL + FAQEVENT + FAQTV + 
+                                 FAQREM + FAQTRAVL + PTGENDER + PTEDUCAT),
+                         data=phase1_training)
 
-#predict biomarkers: ABETA
-Model3 <- lm(log(ABETA) ~. - PTAU - Hippocampus - DX, data=df_subset)
-summary(Model3)
+#BIC stepwise selection
+phase1_FAQbd_step <- step(phase1_FAQbd ,direction="both",trace=0, 
+                    k = log(dim(phase1_training)[1]))
+
+#Summarize final model for this part
+summary(phase1_FAQbd_step)
+```
+
+```{r, warning = FALSE}
+#Part 1.4: Model Assessment and Evaluation
+#Prediction on test set
+predict_test <- predict(phase1_FAQbd_step, phase1_testing, type = 'probs')
+ind_notCN <- phase1_testing$DX!='CN'
+ind_notMCI <- phase1_testing$DX!='MCI'
+ind_notAD <- phase1_testing$DX!='Dementia'
+pred_CN <- predict_test[,1]
+pred_MCI <- predict_test[,2]
+pred_AD <- predict_test[,3]
+
+#Normal vs Dementia
+roc(phase1_testing$DX, pred_AD/(pred_AD+ pred_CN),
+    plot=T,print.thres="best",legacy.axes=T,print.auc =T,col="red3", levels = c('CN', 'Dementia'))
+
+#Normal vs MCI
+roc(phase1_testing$DX, pred_MCI/(pred_MCI+ pred_CN),
+    plot=T,print.thres="best",legacy.axes=T,print.auc =T,col="red3", levels = c('CN', 'MCI'))
+
+#MCI vs Dementia
+roc(phase1_testing$DX, pred_AD/(pred_AD+ pred_MCI),
+    plot=T,print.thres="best",legacy.axes=T,print.auc =T,col="red3", levels = c('MCI', 'Dementia'))
+```
+
+```{r, warning=FALSE}
+#Phase 2: The use of severity score as a tracker for Alzheimer's progression
+phase2 <- read_csv("Data/ADNIMERGE.csv") 
+
+#subset variables of interest
+phase2 <- na.omit(phase2[phase2$COLPROT == 'ADNI1', c('RID', 'VISCODE','DX', 
+                                                      'RAVLT_perc_forgetting_bl',
+                                                      'FAQ', 'DIGITSCOR')])
+
+#Convert variables into factors
+phase2$DX <- ordered(phase2$DX, levels = c('CN','MCI', 'Dementia'))
+phase2$RID <- as.factor(phase2$RID)
+#Some rows have negative RAVLT score and FAQ score
+phase2 <- phase2[phase2$RAVLT_perc_forgetting_bl >=0,]
+
+#Take sqrt of FAQ to fix for large value causing predicting prob of 1
+phase2$FAQ <- phase2$FAQ^0.5
+
+#Fix format for visitcode
+phase2$time <- 100
+phase2[phase2$VISCODE == 'bl',]$time <- 0
+phase2[phase2$VISCODE == 'm06',]$time <- 6
+phase2[phase2$VISCODE == 'm12',]$time <- 12
+phase2[phase2$VISCODE == 'm18',]$time <- 18
+phase2[phase2$VISCODE == 'm24',]$time <- 24
+phase2[phase2$VISCODE == 'm36',]$time <- 36
+phase2[phase2$VISCODE == 'm48',]$time <- 48
+
+#Calculating severity score 
+#Severity score = - 0.04662*DIGITSCOR + 0.02328*RAVLT_perc_forgetting_bl + 1.42722*FAQ^0.5
+phase2$severity_score <- 
+  -0.04662*phase2$DIGITSCOR + 0.02328*phase2$RAVLT_perc_forgetting_bl + 1.42722*phase2$FAQ
+
+```
+
+```{r}
+#Investigate progression for people who are CN at baseline 
+#After 36 months, some of them turned to MCI or Dementia
+phase2_CN <- phase2[phase2$time <=36 & (phase2$RID %in% phase1$RID),]
+phase2RID_CN <- phase2[phase2$time == 36 & 
+                      (phase2$RID %in% phase1$RID) &
+                      (phase2$RID %in% phase2[phase2$time==0,]$RID),]$RID
+
+#Makeing visualization: CN
+plot(phase2_CN[phase2_CN$RID == phase2RID_CN[1],]$time, 
+      phase2_CN[phase2_CN$RID == phase2RID_CN[1],]$severity_score, 
+       col="blue", lwd=0, ylim= c(-3,9), xlim = c(0, 36) )
+
+for (rid in phase2RID_CN) {
+  data <- phase2_CN[phase2_CN$RID == rid,]
+  maxTime = 36
+  if(data[data$time == maxTime,]$DX != data[data$time == 0,]$DX){
+    #if the condition change, use new color
+    if(data[data$time == 0, ]$DX == 'CN'){
+      lines(data$time, data$severity_score, type="o", 
+       col=alpha(rgb(0,0.6,0.6), 0.7), pch=20, lty=1, lwd = 2)
+    }
+  }else if(data[data$time == 0, ]$DX == 'CN'){
+    #Normal: black
+    lines(data$time, data$severity_score, type="l", 
+       col=alpha(rgb(0,0,0), 0.5), lty=3)
+  }
+}
+
+```
+
+```{r}
+#subset phase2 for 
+phase2_MCI <- phase2[phase2$time <=12 & (phase2$RID %in% phase1$RID),]
+phase2RID_MCI <- phase2[phase2$time == 12 & 
+                      (phase2$RID %in% phase1$RID) &
+                      (phase2$RID %in% phase2[phase2$time==0,]$RID),]$RID
+
+#Makeing visualization: CN
+plot(phase2_MCI$time, 
+      phase2_MCI$severity_score, 
+       col="blue", lwd=0, ylim= c(-3,9), xlim = c(0, 12) )
+
+for (rid in phase2RID_MCI) {
+  data <- phase2_MCI[phase2_MCI$RID == rid,]
+  maxTime = 12
+  if(data[data$time == maxTime,]$DX == 'Dementia'){
+    #if the condition change, use new color
+    if(data[data$time == 0, ]$DX == 'MCI'){
+      lines(data$time, data$severity_score, type="o", 
+       col=alpha(rgb(0.6,0,0.6), 0.7), pch=20, lty=1, lwd = 2)
+    }
+  }else if(data[data$time == 0, ]$DX == 'MCI'){
+    #Normal: black
+    lines(data$time, data$severity_score, type="l", 
+       col=alpha(rgb(0,0,0), 0.5), lty=3)
+  }
+}
+```
+```{r}
+#Boxplot for severity score distribution
+
+#Create row label for different category
+baseline_CN <- phase2[phase2$time == 0 & phase2$DX == 'CN',]$RID
+baseline_MCI <- phase2[phase2$time == 0 & phase2$DX == 'MCI',]$RID
+CN_to_others <- phase2[phase2$time == 36 & phase2$DX != 'CN' & 
+                         phase2$RID %in% baseline_CN,]$RID
+MCI_to_DT <- phase2[phase2$time == 12 & phase2$DX == 'Dementia' & 
+                         phase2$RID %in% baseline_MCI,]$RID
+
+#Subset data to investigate only severity score at bl
+phase2_bl <- phase2[phase2$time == 0, ]
+phase2_bl$class <- '0'
+phase2_bl[phase2_bl$DX == 'CN', ]$class <- 'CN'
+phase2_bl[phase2_bl$RID %in% CN_to_others, ]$class <- 'CN->Others'
+phase2_bl[phase2_bl$DX == 'MCI', ]$class <- 'MCI'
+phase2_bl[phase2_bl$RID %in% MCI_to_DT, ]$class <- 'MCI->Dementia'
+
+#boxplot for CN
+ggplot(data = phase2_bl[phase2_bl$DX == 'CN',]) + 
+  geom_boxplot(aes(x = class, y = severity_score, col = class)) 
+#boxplot for MCI
+ggplot(data = phase2_bl[phase2_bl$DX == 'MCI',]) + 
+  geom_boxplot(aes(x = class, y = severity_score, col = class))
+
+#t-test
+t.test(phase2_bl[phase2_bl$DX == 'MCI' &phase2_bl$class == 'MCI',]$severity_score,
+       phase2_bl[phase2_bl$DX == 'MCI' &phase2_bl$class == 'MCI->Dementia',]$severity_score)
+```
+
+```{r}
+#Phase 3: Predict some biomarkers based on test data
+#Obtain data
+phase3 <- na.omit(df[, c( 'RID', 'DX','Hippocampus', 'AGE',
+                          'PTGENDER','VSWEIGHT','PTEDUCAT', 
+                          'Partner', 'RAVLT_perc_forgetting_bl', 'FAQ')])
+
+#Transform FAQ and clean data
+phase3$FAQ <- phase3$FAQ^0.5
+phase3 <- phase3[phase3$RAVLT_perc_forgetting_bl >=0,]
+
+#Split data into 75% training set and 25% testing set
+set.seed(0)
+ind <- sample(c(TRUE, FALSE), dim(phase3)[1], replace=TRUE, prob=c(0.75, 0.25))
+phase3_training <- phase3[ind,]
+phase3_testing <- phase3[!ind,]
 
 #predict biomarkers: Hippocampus
 #Height data is not consistent
-Model4 <- lm(Hippocampus ~DIGITSCOR + FAQ +RAVLT_perc_forgetting_bl + VSWEIGHT +AGE + PTGENDER + PTEDUCAT, data=df_subset)
-summary(Model4)
+phase3_fullmodel <- lm(Hippocampus ~(FAQ + RAVLT_perc_forgetting_bl)^2 +
+                                  VSWEIGHT +AGE + PTGENDER + PTEDUCAT,
+                  data=phase3_training)
+
+phase3_step <- step(phase3_fullmodel ,direction="both",trace=0, 
+                    k = log(dim(phase3_training)[1]))
+summary(phase3_step)
+
+#print r-square for test set: 0.43
+phase3_pred <- predict(phase3_step, phase3_testing)
+print(cor(phase3_pred, phase3_testing$Hippocampus)^2)
+
+#make plot of y actual vs y pred
+plot(x = phase3_pred, y = phase3_testing$Hippocampus, 
+     ylab = 'Actual Hippocampal Volume', xlab = 'Predicted Volume', 
+     ylim = c(4000, 9000), xlim = c(4000, 9000)) + abline(0,1)
 ```
-```{r}
-#Other possible models
-
-```
-
-
-```{r}
-#residual plots
-
-##Calculate residual
-rawresid1 <- (df_subset$DX== 'CN') -  fitted(Model1)[,1]
-rawresid2 <- (df_subset$DX!= 'Dementia') -  rowSums(fitted(Model1)[,1:2])
-
-##binned plots for continuous variables
-binnedplot(fitted(Model1)[,1], rawresid1, xlab = "DIGITSCOR", ylab = "Raw residuals", main = "Binned plot: CN")
-binnedplot(rowSums(fitted(Model1)[,1:2]), rawresid2, xlab = "DIGITSCOR", ylab = "Raw residuals", main = "Binned plot: CN + MCI")
-
-
-
-#for categorical variables, report error table
-tapply(rawresid1, df_subset$PTGENDER, mean)
-tapply(rawresid2, df_subset$PTGENDER, mean)
-tapply(rawresid3, df_subset$PTGENDER, mean)
-```
-
 
 
 ## Results
 
 ```{r}
-multiclass.roc(df$DX_bl,fitted(Model1_pom),plot=T,print.thres="best",legacy.axes=T,
-    print.auc =T,col="red3")
+
 ```
 
 
-## Conclusion and Remarks
+## Conclusion
 
-
+## References
+[1] Pagel, M., Becker, J., & Coppel, D.B. (1985). Loss of control, self-blame, and depression: an investigation of spouse caregivers of Alzheimer's disease patients. Journal of abnormal psychology, 94 2, 169-82 .
+[2] The National Institute on Aging's Alzheimer’s and related Dementias Education and Referral (ADEAR) Center
+[3] Petersen RC, Smith GE, Waring SC, Ivnik RJ, Tangalos EG, Kokmen E. Mild Cognitive Impairment: Clinical Characterization and Outcome. Arch Neurol. 1999;56(3):303–308. 
+[4] Petersen R. C. (2009). Early diagnosis of Alzheimer's disease: is MCI too late?. Current Alzheimer research, 6(4), 324–330. 
+[5] The clinical use of cerebrospinal fluid biomarker testing for Alzheimer's disease diagnosis: A consensus paper from the Alzheimer's Biomarkers Standardization Initiative
+Molinuevo, José Luis et al. Alzheimer's & Dementia: The Journal of the Alzheimer's Association, Volume 10, Issue 6, 808 - 817.
+[6] Jack, C. R., Jr, Knopman, D. S., Jagust, W. J., Shaw, L. M., Aisen, P. S., Weiner, M. W., … Trojanowski, J. Q. (2010). Hypothetical model of dynamic biomarkers of the Alzheimer's pathological cascade. The Lancet. Neurology, 9(1), 119–128. 
+[7] http://adni.loni.usc.edu/about/adni1/
+[8] Matloubi S, Mohammadzadeh A, Jafari Z, Akbarzadeh Baghban A. Effect of background music on auditoryverbal memory performance. Audiology. 2014:0-.
+[9] Patel, T., & Kurdi, M. S. (2015). A comparative study between oral melatonin and oral midazolam on preoperative anxiety, cognitive, and psychomotor functions. Journal of anaesthesiology, clinical pharmacology, 31(1), 37–43. 
+[10] Pfeffer RI, Kurosaki TT, Harrah CH, Jr, et al. Measurement of functional activities in older adults in the community. J Gerontol. 1982;37:323–329.
 * * *
