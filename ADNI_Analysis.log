@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.5.8)  23 NOV 2019 22:39
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.5.8)  6 DEC 2019 23:06
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -630,138 +630,114 @@ G,.JBIG2,.JB2,.eps]
 (/usr/local/texlive/2019/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
-)) [1
+))
 
-{/usr/local/texlive/2019/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Try loading font information for OT1+lmr on input line 182.
+LaTeX Warning: No positions in optional float specifier.
+               Default added (so using `tbp') on input line 174.
+
+LaTeX Font Info:    Try loading font information for OT1+lmr on input line 177.
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OML+lmm on input line 182.
+LaTeX Font Info:    Try loading font information for OML+lmm on input line 177.
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 182
+LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 177
 .
 (/usr/local/texlive/2019/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OMX+lmex on input line 182
+LaTeX Font Info:    Try loading font information for OMX+lmex on input line 177
 .
 (/usr/local/texlive/2019/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 182.
+(Font)              <10> on input line 177.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 182.
+(Font)              <7> on input line 177.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 182.
-LaTeX Font Info:    Try loading font information for U+msa on input line 182.
+(Font)              <5> on input line 177.
+LaTeX Font Info:    Try loading font information for U+msa on input line 177.
 (/usr/local/texlive/2019/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 ) (/usr/local/texlive/2019/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 182.
+LaTeX Font Info:    Try loading font information for U+msb on input line 177.
 (/usr/local/texlive/2019/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (/usr/local/texlive/2019/texmf-dist/tex/latex/microtype/mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
-)
-<Plotunnamed-chunk-4-1.pdf, id=61, 459.7175pt x 132.495pt>
+) [1
+
+{/usr/local/texlive/2019/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+<Plotunnamed-chunk-4-1.pdf, id=61, 459.7175pt x 114.4275pt>
 File: Plotunnamed-chunk-4-1.pdf Graphic file (type pdf)
 <use Plotunnamed-chunk-4-1.pdf>
-Package pdftex.def Info: Plotunnamed-chunk-4-1.pdf  used on input line 241.
-(pdftex.def)             Requested size: 459.74442pt x 132.50273pt.
-<Plotunnamed-chunk-5-1.pdf, id=62, 436.63126pt x 216.81pt>
-File: Plotunnamed-chunk-5-1.pdf Graphic file (type pdf)
-<use Plotunnamed-chunk-5-1.pdf>
-Package pdftex.def Info: Plotunnamed-chunk-5-1.pdf  used on input line 257.
-(pdftex.def)             Requested size: 436.63019pt x 216.80946pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[2 <./Plotunnamed-chunk-4-1.pdf>]
-Overfull \vbox (227.96924pt too high) has occurred while \output is active []
-
-[3 <./Plotunnamed-chunk-5-1.pdf>]
-<MCI_Conversion.png, id=91, 1558.82375pt x 963.6pt>
+Package pdftex.def Info: Plotunnamed-chunk-4-1.pdf  used on input line 222.
+(pdftex.def)             Requested size: 459.73741pt x 114.43245pt.
+[2 <./Plotunnamed-chunk-4-1.pdf>] [3]
+<MCI_Conversion.png, id=85, 1558.82375pt x 963.6pt>
 File: MCI_Conversion.png Graphic file (type png)
 <use MCI_Conversion.png>
-Package pdftex.def Info: MCI_Conversion.png  used on input line 377.
-(pdftex.def)             Requested size: 328.81358pt x 203.25888pt.
-<Plotunnamed-chunk-14-1.pdf, id=93, 440.64626pt x 143.53625pt>
-File: Plotunnamed-chunk-14-1.pdf Graphic file (type pdf)
-<use Plotunnamed-chunk-14-1.pdf>
-Package pdftex.def Info: Plotunnamed-chunk-14-1.pdf  used on input line 381.
-(pdftex.def)             Requested size: 440.65862pt x 143.54027pt.
-<Plotunnamed-chunk-15-1.pdf, id=94, 355.3275pt x 168.63pt>
-File: Plotunnamed-chunk-15-1.pdf Graphic file (type pdf)
-<use Plotunnamed-chunk-15-1.pdf>
-Package pdftex.def Info: Plotunnamed-chunk-15-1.pdf  used on input line 389.
-(pdftex.def)             Requested size: 355.33203pt x 168.63214pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[4 <./MCI_Conversion.png> <./Plotunnamed-chunk-14-1.pdf>]
-<Plotunnamed-chunk-18-1.pdf, id=114, 445.665pt x 289.08pt>
-File: Plotunnamed-chunk-18-1.pdf Graphic file (type pdf)
-<use Plotunnamed-chunk-18-1.pdf>
-Package pdftex.def Info: Plotunnamed-chunk-18-1.pdf  used on input line 463.
-(pdftex.def)             Requested size: 445.6707pt x 289.0837pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-LaTeX Font Info:    Try loading font information for T1+lmtt on input line 469.
-
-(/usr/local/texlive/2019/texmf-dist/tex/latex/lm/t1lmtt.fd
-File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
-)
-<ADNI_clinicalDiseaseStage-V-EDIT.png, id=115, 1164.35pt x 658.46pt>
+Package pdftex.def Info: MCI_Conversion.png  used on input line 358.
+(pdftex.def)             Requested size: 305.33708pt x 188.74669pt.
+[4 <./MCI_Conversion.png>]
+<ADNI_clinicalDiseaseStage-V-EDIT.png, id=99, 1164.35pt x 658.46pt>
 File: ADNI_clinicalDiseaseStage-V-EDIT.png Graphic file (type png)
 <use ADNI_clinicalDiseaseStage-V-EDIT.png>
 Package pdftex.def Info: ADNI_clinicalDiseaseStage-V-EDIT.png  used on input li
-ne 482.
+ne 438.
 (pdftex.def)             Requested size: 328.82289pt x 185.95502pt.
-[5 <./Plotunnamed-chunk-15-1.pdf>] [6 <./Plotunnamed-chunk-18-1.pdf> <./ADNI_cl
-inicalDiseaseStage-V-EDIT.png>]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 559.
-[7]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 559.
+[5 <./ADNI_clinicalDiseaseStage-V-EDIT.png>] [6] [7]
+<Plotunnamed-chunk-18-1.pdf, id=121, 448.67625pt x 456.70625pt>
+File: Plotunnamed-chunk-18-1.pdf Graphic file (type pdf)
+<use Plotunnamed-chunk-18-1.pdf>
+Package pdftex.def Info: Plotunnamed-chunk-18-1.pdf  used on input line 591.
+(pdftex.def)             Requested size: 448.68884pt x 456.71906pt.
+[8 <./Plotunnamed-chunk-18-1.pdf>]
+<Plotunnamed-chunk-19-1.pdf, id=134, 445.665pt x 289.08pt>
+File: Plotunnamed-chunk-19-1.pdf Graphic file (type pdf)
+<use Plotunnamed-chunk-19-1.pdf>
+Package pdftex.def Info: Plotunnamed-chunk-19-1.pdf  used on input line 602.
+(pdftex.def)             Requested size: 445.6707pt x 289.0837pt.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 612.
+[9 <./Plotunnamed-chunk-19-1.pdf>]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 612.
 (./ADNI_Analysis.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 559.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 559.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 612.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 612.
 Package rerunfilecheck Info: File `ADNI_Analysis.out' has not changed.
-(rerunfilecheck)             Checksum: 7859189007FD048E590F4CD607E676C8;1930.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 559.
+(rerunfilecheck)             Checksum: FD97385424AECE30263FC329787923ED;2039.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 612.
  ) 
 Here is how much of TeX's memory you used:
- 12543 strings out of 492616
- 183385 string characters out of 6129482
- 296662 words of memory out of 5000000
- 16188 multiletter control sequences out of 15000+600000
- 32295 words of font info for 76 fonts, out of 8000000 for 9000
+ 12497 strings out of 492616
+ 182515 string characters out of 6129482
+ 299371 words of memory out of 5000000
+ 16149 multiletter control sequences out of 15000+600000
+ 31478 words of font info for 69 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 32i,7n,38p,976b,380s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2019/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/local/
-texlive/2019/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/usr/local/texlive/2019/t
-exmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}{/usr/local/texlive/2019/texmf-dist/
-fonts/enc/dvips/lm/lm-mathit.enc}{/usr/local/texlive/2019/texmf-dist/fonts/enc/
-dvips/lm/lm-mathsy.enc}</usr/local/texlive/2019/texmf-dist/fonts/type1/public/l
+ 32i,8n,38p,976b,432s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2019/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/usr/local/
+texlive/2019/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}{/usr/local/texlive/20
+19/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/local/texlive/2019/texmf-d
+ist/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/local/texlive/2019/texmf-dist/fonts/
+enc/dvips/lm/lm-ec.enc}</usr/local/texlive/2019/texmf-dist/fonts/type1/public/l
 m/lmbx10.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/lm/lmbx12.p
 fb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/lm/lmex10.pfb></usr/l
 ocal/texlive/2019/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></usr/local/texli
 ve/2019/texmf-dist/fonts/type1/public/lm/lmr10.pfb></usr/local/texlive/2019/tex
 mf-dist/fonts/type1/public/lm/lmr7.pfb></usr/local/texlive/2019/texmf-dist/font
-s/type1/public/lm/lmsy10.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/pu
-blic/lm/lmtt10.pfb>
-Output written on ADNI_Analysis.pdf (7 pages, 1478433 bytes).
+s/type1/public/lm/lmsy10.pfb>
+Output written on ADNI_Analysis.pdf (9 pages, 1338086 bytes).
 PDF statistics:
- 194 PDF objects out of 1000 (max. 8388607)
- 156 compressed objects within 2 object streams
- 36 named destinations out of 1000 (max. 500000)
- 6260 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 191 PDF objects out of 1000 (max. 8388607)
+ 158 compressed objects within 2 object streams
+ 46 named destinations out of 1000 (max. 500000)
+ 6250 words of extra memory for PDF output out of 10000 (max. 10000000)
 
