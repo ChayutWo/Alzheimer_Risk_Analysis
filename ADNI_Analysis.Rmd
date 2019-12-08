@@ -35,16 +35,16 @@ library(gridExtra)
 
 
 ## Executive Summary
-In this project, we give comprehensive analysis on Alzheimer's disease data. A model to classify different Alzheimer's phases (Normal, Mild Cognitive Impairment, and Dementia) is developed using proportional odds ratio technique. Risk score is proposed and shown that people who had Mild Cognitive Impairment and progressed to Dementia within a year, on average, had higher score. Finally, a regression model to explain variability in Hippocampal volume of patients is discussed.
+In this project, we give comprehensive analysis on Alzheimer's disease data. A model to classify different Alzheimer's phases (Normal, Mild Cognitive Impairment, and Dementia) is developed using proportional odds ratio technique. Risk score formula is proposed and shown that people who had Mild Cognitive Impairment and progressed to Dementia within a year, on average, had higher score. Finally, a regression model to explain variability in Hippocampal volume of patients is discussed.
 
 ## Introduction 
-Introduced in 1910, Alzheimer’s disease is developed through an irreversible process spanning across several years. Patients typically experience memory loss, impaired cognitive ability, language problems, and stress[1]. Even though over 5.8 million Americans are suffering from it[2], our capability in accurately screening is still limited especially for Mild Cognitive Impairment (MCI), the early stage of the disease, leading to late treatment.
+Introduced in 1910, Alzheimer’s disease is developed through an irreversible process spanning across several years. Patients typically experience memory loss, impaired cognitive ability, language problems, and stress [1]. Even though over 5.8 million Americans are suffering from it, our capability in accurately screening is still limited especially for Mild Cognitive Impairment (MCI), the early stage of the disease, leading to late treatment [2].
 
-Moreover, the diagnostic process also involves several metrics and subjective components including standardized test (Mini-Mental State Exam MMSE) which is not sensitive for MCI [3,4], interviews, and sometimes CT, MRI or PET scan for biomarkers to determine the progress of the disease [5]. To contribute to this area, three main objectives will be addressed in this project.
+Moreover, the diagnostic process also involves several metrics and subjective components including standardized test (Mini-Mental State Exam MMSE) which is not sensitive to MCI, interviews, and sometimes CT, MRI or PET scan for biomarkers to determine the progress of the disease [3,4,5]. To contribute to this area, three main objectives will be addressed in this project.
 
 1. To build statistical models based on simple neuropsychological tests that could be administered online to predict Alzheimer's phases in patients, and compare their predictive capability with other methods proposed within research community.  
 
-2. To construct a risk score metric using the model in the first section in capturing the potential conversion to more severe states of Alzheimer's in the future.
+2. To construct a risk score metric using the model in the first section in capturing the potential conversion to more severe states of Alzheimer's disease in the future.
 
 3. To investigate the capability of these basic tests in estimating some of the biomarkers that have been believed to play major roles in the progression of the disease [6].
 
@@ -86,20 +86,20 @@ phase1 <- phase1[phase1$FAQBEVG>=0,]
 
 ## Data and Exploratory Data Analysis
 
-The data was provided by The Alzheimer’s Disease Neuroimaging Initiative (ADNI) with more than 14,000 records of 115 variables. In this project, we focus on ADNI1 cohort (797 participants). The variables being investigated include demographic information of participants, longitudinal diagnostic results, biomarkers, and Neuropsychological test results [7]. For the diagnosis, each person was classified into one of the three groups: Control Normal (CN), Mild Cognitive Impairment (MCI), or Dementia (AD). The full data dictionary is provided in the appendix section.
+The data was provided by the Alzheimer’s Disease Neuroimaging Initiative (ADNI) with more than 14,000 records of 115 variables. In this project, we focus on ADNI1 cohort (797 participants). The variables being investigated include demographic information of participants, longitudinal diagnostic results, biomarkers, and Neuropsychological test results [7]. For the diagnosis, each person was classified into one of the three groups: Control Normal (CN), Mild Cognitive Impairment (MCI), and Dementia (AD). The full data dictionary is provided in the appendix section.
 
 The neuropsychological tests explored in this project included:
 
-1. Rey Auditory Verbal Learning Test (RAVLT): an auditory-verbal memory test where high score indicates high rate of forgetting[8]
+1. Rey Auditory Verbal Learning Test (RAVLT): an auditory-verbal memory test where high score indicates high rate of forgetting [8]
 
-2. Digit Symbol Substitution Test (DSST): a symbol matching test where low score means impaired coginitive skill[9]
+2. Digit Symbol Substitution Test (DSST): a symbol matching test where low score means impaired coginitive skill [9]
 
-3. Functional Activities Questionnaire (FAQ): a questionnaire for an informant about patient's ability to do daily tasks alone in which high score means being dependent[10]
+3. Functional Activities Questionnaire (FAQ): a questionnaire for an informant about patient's ability to do daily tasks alone in which high score means being dependent [10]
 
 In the data cleaning process, some negative RAVLT scores are found and the records are removed. Moreover, the unit of height measurement is not consistent across the population noted from clear bimodal distribution. The summary statistics of some key variables are reported in Table 1 below.
 
 \begin{table}[]
-\caption{Summary Statistics of Some Candidate Predictors}
+\caption{Summary Statistics of a Subset of Candidate Predictors}
 \begin{center}
 \begin{tabular}{l|l|l|l}
 \hline
@@ -160,10 +160,10 @@ print(summary_table(dplyr::group_by(phase1, DX), data_summary))
 ```
 \newpage
 
-For exploratory data analysis, we utilized boxplots (Figure 1) and density plots to examine the possibility of using the variables we had in predicting Alzheimer's phases. For RAVLT score, the higher score indicates less ability to recall words after a certain period of time, hence, a decline in cognitive ability. DSST score indicates how fast participants can match the symbols with digits; therefore, higher scores pose less probability of having cognitive problem.
+For exploratory data analysis, we utilize boxplots (Figure 1) and density plots to examine the possibility of using the variables we have in predicting Alzheimer's disease phases. For RAVLT score, the higher score indicates less ability to recall words after a certain period of time, hence, a decline in cognitive ability. DSST score indicates how fast participants can match the symbols with digits; therefore, higher scores pose less probability of having cognitive problem.
 
 
-```{r, echo = FALSE, fig.height = 1.75, fig.cap="Boxplots showing distributions of auditory score (RAVLT) and digit substitution score (DSST) of applicants with different ALzheimer's periods"}
+```{r, echo = FALSE, fig.height = 1.75, fig.cap="Boxplots showing the distributions of auditory score (RAVLT) and digit substitution score (DSST) of applicants with different Alzheimer's periods"}
 box1 <-ggplot(data = phase1) + geom_boxplot(aes(y = RAVLT,x = DX, fill = DX)) + xlab(NULL) + ylab('RAVLT')+ theme(legend.position = "none")
 
 box2 <-ggplot(data = phase1) + geom_boxplot(aes(y = DSST,x = DX, fill = DX)) + xlab(NULL) + ylab('DSST')+ theme(legend.position = "none")
@@ -235,7 +235,7 @@ Some other notices are the normality of Hippocampal Volume, one of the key bioma
 
 \newpage
 ### Model Part I: Alzheimer's Phase Prediction
-The proportional odds model is used to predict Alzheimer's Phases in participants. We split the data into training and test set (75%:25%). All demographic data and three test variables (RAVLT, DSST, and FAQ) are included. Then, stepwise feature selection using BIC as the criteria is adopted. Finally, interaction terms and transformation are tested in term of the predictive capability. 
+The proportional odds model is used to predict Alzheimer's Phases in participants. We split the data into training and test set (75%:25%). All demographical data and three test variables (RAVLT, DSST, and FAQ) are included. Then, stepwise feature selection using BIC as the criteria is adopted. Finally, interaction terms and transformation are tested in term of the predictive capability. 
 
 According to model coefficients (after being exponentiated) in Table 2, the model only depends on three types of tests which are all significant at the 0.05 significance level. 
 
@@ -284,7 +284,7 @@ kable(tidy(phase1_step, exponentiate = T), digit = 3, caption = "Coefficients of
   
 For the model assessment and evaluation, binned plots of the raw residuals versus the fitted probability on the test set is used. For most part, the binned residuals have no clear pattern.
 
-To assess the generalizability, the AUC of the model on the test set was computed. The CN and Dementia cases can be almost perfectly separable (0.999). We also obtained reasonable AUC for separating CN from MCI (0.882) and MCI from Dementia (0.888). We compared our model AUC with that from other researcher that use the same data set and summarized all findings in the Table 3.  
+To assess the generalizability, the AUC of the model on the test set is computed. The CN and Dementia cases can be almost perfectly separable (0.999). We also obtained reasonable AUC for separating CN from MCI (0.882) and MCI from Dementia (0.888). We compared our model AUC with that from other researchers that use the same data set and summarized all findings in the Table 3.  
 
 \begin{table}[h]
 \caption{AUC of classification models to predict different phases of Alzheimer's disease}
@@ -317,7 +317,7 @@ binnedplot(fitted(phase1_step)[,1], rawresid1, xlab = "fitted value", ylab = "Ra
 binnedplot(rowSums(fitted(phase1_step)[,1:2]), rawresid2, xlab = "fitted value", ylab = "Raw residuals", main = "Binned plot: CN + MCI")
 ```
 
-As the FAQ score is predictive, we further investigates the subscores of FAQ which targeted at ten different tasks in daily life such as the ability of applicants in preparing meals [14]. These subscores are incorporated into the modelling strategy and the stepwise feature selection using BIC is used to obtain the final model.
+As the FAQ score is predictive, we further investigates the subscores of FAQ which target at ten different tasks in daily life such as the ability of applicants in preparing meals [14]. These subscores are incorporated into the modelling strategy and the stepwise feature selection using BIC is used to obtain the final model.
 
 Out of the ten subscores, four of them are included in the final model and including the others doesn't further improve the performance. These tasks are completing forms, preparing meals, remembering appointments, and traveling out of the neighborhood. It is possible that these impairments are relatively easy to observe by relatives. The benefits here is to possibly reduce the number of questions in the FAQ or target at these areas while conducting interview.
 
@@ -393,7 +393,7 @@ roc(phase1_testing$DX, pred_AD/(pred_AD+ pred_MCI),
 
 ### Model Part II: Risk Score for Alzheimer's Disease
 
-Unfortunately, rigorous classification modelling cannot be applied because of two reasons. Firstly, not all patients had a consistent follow-up. Secondly, pathologically, the conversion rate for normal people to MCI is about 6% per year[15] and ADNI has not followed people long enough. Therefore, researchers mostly treated ADNI1 data as a cross-sectional study[13].
+Unfortunately, rigorous classification modelling cannot be applied because of two reasons. Firstly, not all patients had a consistent follow-up. Secondly, pathologically, the conversion rate for normal people to MCI is about 6% per year and ADNI has not followed people long enough [15]. Therefore, researchers mostly treated ADNI1 data as a cross-sectional study [13].
 
 Despite these facts, exploring potential characteristics in the converted group is still possible for MCI turning to Dementia. We start by defining the risk score using coefficients from the first model. We posit a hypothesis that people who are relatively more likely to have Dementia and yet was still at MCI might be more likely to convert in the near future. The risk score is reported below.
 $$
@@ -594,9 +594,9 @@ roc(phase2_testing$turn, predict2_test,
 
 ### Model Part III: Biomarkers Modelling
 
-There are three biomarkers normally measured in the study of Alzheimer's: PTAU, ABETA, and hippocampal volume. The linear regression model considering transformations of test data and demographical information is utilized to capture them. However, as expected from weak linear correlation, we can explain less than 15% of the variability in PTAU and ABETA. One main reason is that these two biomarkers are generated early on in the pathogenesis when all cognitive abilities are still intact [16].
+There are three biomarkers normally measured in the study of Alzheimer's disease: PTAU, ABETA, and hippocampal volume. The linear regression model considering transformations of test data and demographical information is utilized to capture them. However, as expected from weak linear correlation, we can explain less than 15% of the variability in PTAU and ABETA. One main reason is that these two biomarkers are generated early on in the pathogenesis when all cognitive abilities are still intact [16].
 
-For Hippocampal volume, we obtain r-squared of 0.47 in test set. The model coefficients are reported in Table 4 below. DSST is found to be insignificant in predicting the volume. As expected, as people conditions were worsened (higher RAVLT and FAQ), on average, Hippocampal volume will be lower from neuron cell deaths. Sex is a significant predictor as well. On average, male tends to have about 500 $mm^3$ more hippocampal volume than female of the same conditions. Finally, on average, an increase in one year of age corresponds to 54 $mm^3$ decrease in volume possibly due to aging.
+For Hippocampal volume, we obtain r-squared of 0.47 in test set. The model coefficients are reported in Table 4 below. DSST is found to be insignificant in predicting the volume. As expected, as people conditions worsened (higher RAVLT and FAQ), on average, Hippocampal volume will be lower from neuron cell deaths. Sex is a significant predictor as well. On average, male tends to have about 500 $mm^3$ more hippocampal volume than female of the same conditions. Finally, on average, an increase in one year of age corresponds to 54 $mm^3$ decrease in volume possibly due to aging.
 
 ```{r, echo = FALSE}
 #Phase 3: Predict some biomarkers based on test data
@@ -622,7 +622,7 @@ phase3_fullmodel <- lm(Hippocampus ~(FAQ + RAVLT)^2 +
 
 phase3_step <- step(phase3_fullmodel ,direction="both",trace=0, 
                     k = log(dim(phase3_training)[1]))
-kable(tidy(phase3_step, exponentiate = FALSE, conf.int = TRUE), digit = 3, caption = "Coefficients of Regression Model to Predict Hippocampal Volumes")
+kable(tidy(phase3_step, exponentiate = FALSE, conf.int = TRUE), digit = 3, caption = "Coefficients of the Regression Model to Predict Hippocampal Volumes")
 
 ```
 
@@ -639,7 +639,7 @@ knitr::include_graphics("ADNI_clinicalDiseaseStage-V-EDIT.png")
 
 The proportional odds model has capability of classifying people with different Alzheimer's phases at a comparable accuracy with other alternatives in the research community. Key areas of FAQ are identified leading to possible improvement of the interview process. Regarding the future conversion, MCI cohort who turned to Dementia state in one year, had higher risk score compared with the others averagely. Lastly, the regression model on biomarkers can explain some uncertainty in Hippocampal volume.
 
-In this study, the major limitation was that the cohort ADNI1 may be too homogenous demographically (race and age). Moreover, the applicants were not sampled from the true population but rather accepted via enrollment. As some cognitive ability measurements might be dependent on education, and family background, problems in generalization may arise. We also lack some detailed information that could lead to better result in biomarkers modelling such as some body measurements. These are key areas that could be improved in the future.
+In this study, the major limitation is that the cohort ADNI1 may be too homogenous demographically (race and age). Moreover, the applicants were not sampled from the true population but rather accepted via enrollment. As some cognitive ability measurements might be dependent on education, and family background, problems in generalization may arise. We also lack some detailed information that could lead to better result in biomarkers modelling such as some body measurements. These are key areas that could be improved in the future.
 
 \newpage
 ## Appendix
@@ -724,9 +724,9 @@ Hippocampus & Hippocampal volume ($mm^3$)  \\ \hline
 par(mfrow = c(3,2))
 binnedplot(y=phase1$DX == 'CN',phase1$RAVLT,xlab="RAVLT",
            ylim=c(0,1),col.pts="navy", ylab ="Prob(CN)",col.int="white", main = NULL)
-binnedplot(y=phase1$DX != 'Dementia',phase1$DSST,xlab="RAVLT",
+binnedplot(y=phase1$DX != 'Dementia',phase1$RAVLT,xlab="RAVLT",
            ylim=c(0,1),col.pts="navy", ylab ="Prob(CN or MCI)",col.int="white", main = NULL)
-binnedplot(y=phase1$DX == 'CN',phase1$RAVLT,xlab="DSST",
+binnedplot(y=phase1$DX == 'CN',phase1$DSST,xlab="DSST",
            ylim=c(0,1),col.pts="navy", ylab ="Prob(CN)",col.int="white", main = NULL)
 binnedplot(y=phase1$DX != 'Dementia',phase1$DSST,xlab="DSST",
            ylim=c(0,1),col.pts="navy", ylab ="Prob(CN or MCI)",col.int="white", main = NULL)
@@ -738,7 +738,7 @@ binnedplot(y=phase1$DX != 'Dementia',phase1$FAQ,xlab="FAQ",
 
 \newpage
 
-```{r, echo  =FALSE, warning= F, fig.cap="Diagnostic plots of the model to predict hippocampal volume in applicants of ADNI1. The last figure reports the fitting results in the test set"}
+```{r, echo  =FALSE, warning= F, fig.cap="Diagnostic plots of the model to predict hippocampal volume in applicants of ADNI1. The last figure reports the fitting results in the test set", fig.height=6}
 #print r-square for test set: 0.43
 phase3_pred <- predict(phase3_step, phase3_testing, type = 'response')
 #print(cor(phase3_pred, phase3_testing$Hippocampus)^2)
