@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.5.8)  7 DEC 2019 22:24
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.5.8)  25 DEC 2019 15:23
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -734,7 +734,7 @@ ocal/texlive/2019/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></usr/local/texli
 ve/2019/texmf-dist/fonts/type1/public/lm/lmr10.pfb></usr/local/texlive/2019/tex
 mf-dist/fonts/type1/public/lm/lmr7.pfb></usr/local/texlive/2019/texmf-dist/font
 s/type1/public/lm/lmsy10.pfb>
-Output written on ADNI_Analysis.pdf (9 pages, 1338899 bytes).
+Output written on ADNI_Analysis.pdf (9 pages, 1338927 bytes).
 PDF statistics:
  191 PDF objects out of 1000 (max. 8388607)
  158 compressed objects within 2 object streams
