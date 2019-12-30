@@ -18,11 +18,11 @@ All analysis programming is done using R. The statistical techniques covered in 
 
 ## File description
 
-Project Proposal.pdf: project proposal summited 
-ADNI_Analysis.Rmd: R markdown file for data analysis and reporting
-ANDI_Analysis.pdf: full report of the project
-ANDI_Analysis.pptx: powerpoint presentation of the project for the data modelling class at Duke University
-Data folder: Raw data and data dictionary
+* Project Proposal.pdf: project proposal summited 
+* ADNI_Analysis.Rmd: R markdown file for data analysis and reporting
+* ANDI_Analysis.pdf: full report of the project
+* ANDI_Analysis.pptx: powerpoint presentation of the project for the data modelling class at Duke University
+* Data folder: Raw data and data dictionary
 
 ## Authors
 
