@@ -8,6 +8,9 @@ In this project, we give comprehensive analysis on Alzheimer’s disease data. A
 2. To construct a risk score metric using the model in the ﬁrst section in capturing the potential conversion to more severe states of Alzheimer’s disease in the future. 
 3. To investigate the capability of these basic tests in estimating some of the biomarkers that have been believed to play major roles in the progression of the disease.
 
+## Dataset
+Data used in the preparation of this article were obtained from the Alzheimer’s Disease Neuroimaging Initiative (ADNI) database (adni.loni.usc.edu). The ADNI was launched in 2003 as a public-private partnership, led by Principal Investigator Michael W. Weiner, MD. The primary goal of ADNI has been to test whether serial magnetic resonance imaging (MRI), positron emission tomography (PET), other biological markers, and clinical and neuropsychological assessment can be combined to measure the progression of mild cognitive impairment (MCI) and early Alzheimer’s disease (AD). For up-to-date information, see www.adni-info.org.
+
 ### Prerequisites
 
 What things you need to install the software and how to install them
