@@ -1,10 +1,12 @@
 # Alzheimer Risk Analysis
 
-One Paragraph of project description goes here
+In this project, we give comprehensive analysis on Alzheimer’s disease data. A model to classify diﬀerent Alzheimer’s phases (Normal, Mild Cognitive Impairment, and Dementia) is developed using proportional odds ratio technique. Risk score formula is proposed and shown that people who had Mild Cognitive Impairment and progressed to Dementia within a year, on average, had higher score. Finally, a regression model to explain variability in Hippocampal volume of patients is discussed. 
 
-## Getting Started
+## Objectives
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+1. To build statistical models based on simple neuropsychological tests that could be administered online to predict Alzheimer’s phases in patients, and compare their predictive capability with other methods proposed within research community. 
+2. To construct a risk score metric using the model in the ﬁrst section in capturing the potential conversion to more severe states of Alzheimer’s disease in the future. 
+3. To investigate the capability of these basic tests in estimating some of the biomarkers that have been believed to play major roles in the progression of the disease.
 
 ### Prerequisites
 
